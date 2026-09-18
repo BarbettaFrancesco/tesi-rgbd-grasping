@@ -1,0 +1,122 @@
+
+
+- [x] RGB‑D camera in ROS (acquisizione + pubblicazione)
+- [x] hand detection/landmarks (MediaPipe su RGB)
+- [ ] landmark 3D metrici da RGB‑D (integrazione depth + deprojection)
+- [ ] hand pose estimation nel frame camera (mano come pose/kinematica, non solo landmark)
+- [ ] object pose estimation (6D pose)
+- [ ] definizione di un frame comune e retargeting umano → G1
+- [ ] generazione automatica dimostrazioni in simulazione
+- [ ] RL grasping usando le dimostrazioni
+- [ ] analisi qualità stime vs performance RL
+- [ ] estensione object-agnostic (opzionale)
+
+Registra clip in cui la mano:
+
+- entra/esce dalla scena
+- si apre e chiude lentamente
+- ruota il polso
+- cambia orientamento rispetto alla camera
+- si avvicina e si allontana
+- mostra dorso, palmo, profilo
+
+Queste servono per:
+
+- capire la robustezza dei landmark
+- verificare quali landmark perdono tracking
+- associare correttamente depth ai keypoint
+
+### B. Sequenze con self-occlusion
+
+Molto importanti, perché il grasping le avrà sempre.
+
+Fai clip in cui:
+
+- le dita si sovrappongono
+- il pollice copre altre dita
+- la mano è semi-chiusa
+- la mano è inclinata in modo difficile per la camera
+
+Queste servono per valutare:
+
+- buchi nella depth
+- landmark instabili
+- degrado della stima della pose
+
+### C. Sequenze con oggetto statico in mano
+
+Primo passo verso grasping reale.
+
+Usa 2–3 oggetti semplici:
+
+- cubo/scatola
+- bottiglia
+- cilindro/tazza
+
+Registra:
+
+- pre-grasp
+- contatto
+- chiusura della mano
+- mantenimento della presa
+- rilascio
+
+Questo ti serve perché la presenza dell’oggetto:
+
+- introduce occlusioni realistiche
+- altera la visibilità delle dita
+- rende più difficile la ricostruzione della mano completa
+
+### D. Sequenze multi-distanza
+
+Molto utili per capire il limite della depth.
+
+Ripeti le stesse azioni a:
+
+- vicino
+- medio
+- lontano
+
+Per esempio:
+
+- 25–35 cm
+- 40–60 cm
+- 70–90 cm
+
+Così puoi capire dove la depth della mano è abbastanza affidabile.
+
+---
+
+## Come registrerei io, concretamente
+
+Farei almeno queste registrazioni:
+
+1. __mano aperta/chiusa, senza oggetto__ — 2 minuti
+2. __rotazioni del polso__ — 2 minuti
+3. __mano che si avvicina/allontana__ — 2 minuti
+4. __occlusioni tra dita__ — 2 minuti
+5. __presa di un oggetto semplice (cubo/scatola)__ — 3 minuti
+6. __presa di un oggetto cilindrico__ — 3 minuti
+7. __presa con orientazioni diverse rispetto alla camera__ — 3 minuti
+
+Totale: anche __15–20 minuti di rosbag ben fatta__ valgono molto più di tante registrazioni casuali.
+
+---
+
+## Cosa deve vedersi bene nella registrazione
+
+Per il tuo obiettivo, la ripresa dovrebbe:
+
+- avere __mano intera sempre nel frame__
+- evitare motion blur eccessivo
+- mantenere l’oggetto ben visibile
+- evitare sfondi troppo rumorosi
+- avere illuminazione abbastanza stabile
+- tenere la camera fissa
+
+### Molto importante
+
+Se il focus adesso è __landmark 3D robusti__, fai prima dataset con:
+
+- __mano sola__
+- __mano + oggetto semplice__ e solo dopo passi a demo complesse di grasping.

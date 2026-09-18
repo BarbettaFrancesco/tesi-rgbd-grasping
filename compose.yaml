@@ -1,0 +1,56 @@
+services:
+  ros2:
+    build:
+      context: /home/frabarbe/tesi-rgbd-grasping
+      dockerfile: Dockerfile
+
+    container_name: ros2_jazzy_grasping
+
+    devices:
+      - source: /dev/bus/usb
+        target: /dev/bus/usb
+        permissions: rwm
+
+    environment:
+      DISPLAY: :0
+      WAYLAND_DISPLAY: wayland-0
+      XDG_RUNTIME_DIR: /tmp/runtime-frabarbe
+      QT_X11_NO_MITSHM: "1"
+      QT_QPA_PLATFORM: wayland
+      XAUTHORITY: /tmp/runtime-frabarbe/.Xauthority
+      ROS_DOMAIN_ID: "0"
+
+    user: "1000:1000"
+    network_mode: host
+    privileged: true
+    ipc: host
+    shm_size: '1gb'
+    stdin_open: true
+    tty: true
+
+    volumes:
+      - type: bind
+        source: /home/frabarbe/tesi-rgbd-grasping/ros_ws
+        target: /ros_ws
+
+      - type: bind
+        source: /mnt/wslg/.X11-unix
+        target: /tmp/.X11-unix
+
+      - type: bind
+        source: /mnt/wslg
+        target: /mnt/wslg
+
+      - type: bind
+        source: /mnt/wslg/runtime-dir
+        target: /tmp/runtime-frabarbe
+
+      - type: bind
+        source: /mnt/wslg/runtime-dir/.Xauthority
+        target: /tmp/runtime-frabarbe/.Xauthority
+
+      - type: bind
+        source: /dev
+        target: /dev
+
+    working_dir: /ros_ws

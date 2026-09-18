@@ -1,0 +1,141 @@
+TODO - Portare "nella giusta dimensione" (hand tracking):
+
+- [ ] Analizzare il problema di scala: cos'è la "giusta dimensione"? (output, immagini, coordinate, etc.)
+- [ ] Raccogliere parametri camera (intrinseci, extrinseci, FOV, risoluzione, ecc.)
+- [ ] Calibrare, se necessario, la camera Realsense
+- [ ] Identificare dove viene gestita la scala/dimensione nel codice (es: hand_tracker.py, realsense_node.py)
+- [ ] Implementare/confermare la normalizzazione/scalatura desiderata (coordinate, o immagini)
+- [ ] Testare la trasformazione (output o visualizzazione)
+- [ ] Validare la soluzione (test pratico)
+
+Aggiornare la checklist ad ogni step effettuato.
+docker compose exec ros2 bash
+cd /ros_ws
+colcon build
+source install/setup.bash
+ros2 run hand_tracking_ros hand_tracker
+
+🔴 Voglio rifare tutto da zero
+cd ~/tesi-rgbd-grasping
+docker compose down
+docker compose build --no-cache
+docker compose up -d
+docker compose exec ros2 bash
+cd /ros_ws
+rm -rf build install log
+source /opt/ros/jazzy/setup.bash
+colcon build
+source install/setup.bash
+ros2 run hand_tracking_ros hand_tracker
+
+⚡ Avvio normale, se l'immagine e il package sono già compilati
+cd ~/tesi-rgbd-grasping
+docker compose up -d
+docker compose exec ros2 bash
+source /ros_ws/install/setup.bash
+ros2 run hand_tracking_ros hand_tracker
+
+
+Voglio procedere con lo sviluppo del progetto ROS 2 partendo dalla versione senza NVIDIA Jetson, utilizzando per ora un normale PC/laptop e la Intel RealSense.
+
+L'obiettivo è però progettare fin da subito il codice in modo che in futuro possa essere trasferito su una NVIDIA Jetson con il minimo possibile di modifiche e, dove conveniente, utilizzare Isaac ROS, CUDA e TensorRT.
+NON voglio implementare subito la parte specifica per Jetson/Isaac ROS.
+
+Prima dobbiamo realizzare una versione completamente funzionante su PC utilizzando ROS 2 + RealSense + i normali pacchetti ROS 2/OpenCV/Python o C++ necessari.
+
+Architettura da seguire
+Voglio mantenere una separazione chiara tra:
+
+Driver della RealSense
+Topic ROS 2
+Elaborazione dei dati
+Logica dell'applicazione
+Eventuale visualizzazione/output
+La RealSense deve essere utilizzata tramite il relativo driver ROS 2 e il mio codice deve comunicare con essa principalmente attraverso i topic ROS 2.
+
+Ad esempio:
+
+RealSense
+↓
+realsense2_camera
+↓
+ROS 2 topics
+↓
+miei nodi ROS 2
+↓
+elaborazione
+↓
+output
+
+Compatibilità futura con Jetson
+Quando scrivi o modifichi il codice:
+
+evita dipendenze inutili specifiche del PC;
+evita di assumere che l'elaborazione debba essere fatta esclusivamente sulla CPU;
+mantieni i nodi modulari;
+usa messaggi e topic ROS 2 come interfaccia tra i componenti;
+separa il più possibile acquisizione, elaborazione e logica;
+evita di riscrivere il progetto in modo monolitico;
+se una parte potrebbe essere successivamente sostituita con un componente Isaac ROS, progettala con un'interfaccia ROS 2 pulita;
+non introdurre CUDA/TensorRT/Isaac ROS finché non servono nella fase PC.
+Procedura
+Voglio che procediamo in questo ordine:
+
+FASE 1 — PC
+
+Analizza il codice ROS 2 che abbiamo già.
+Dimmi quali parti sono già corrette e quali devono essere modificate.
+Identifica quali pacchetti ROS 2 sono necessari.
+Configura la RealSense con ROS 2.
+Verifica i topic pubblicati dalla RealSense.
+Implementa i miei nodi ROS 2 in modo modulare.
+Crea/aggiorna i file launch.
+Verifica che tutto funzioni sul PC.
+Se possibile, aggiungi un sistema per registrare i dati con rosbag, così da poter testare gli algoritmi anche senza avere sempre la RealSense collegata.
+
+
+
+Prima terminale nel container:
+
+```bash
+docker exec -it ros2_jazzy_grasping bash
+source /opt/ros/jazzy/setup.bash
+source /ros_ws/install/setup.bash
+ros2 run hand_tracking_ros realsense_node
+```
+
+Secondo terminale:
+
+```bash
+docker exec -it ros2_jazzy_grasping bash
+source /opt/ros/jazzy/setup.bash
+source /ros_ws/install/setup.bash
+ros2 run hand_tracking_ros hand_tracker
+```
+
+Terzo terminale:
+
+```bash
+docker exec -it ros2_jazzy_grasping bash
+source /opt/ros/jazzy/setup.bash
+export DISPLAY=${DISPLAY}
+export QT_X11_NO_MITSHM=1
+c
+```
+DEVI RENDERE DISPONIBILE DA WINDOWS LA camera
+2-14   8086:0b3a  Intel(R) RealSense(TM) Depth Camera 435i Depth, Intel(R) ...  Shared
+usbipd.exe attach --busid=2-14 --wsl=Ubuntu
+
+VERIFICARE FREQUENZE 
+source /ros_ws/install/setup.bash
+ros2 topic hz /camera/camera/color/image_raw
+ros2 topic hz /hand_tracking/image_annotated
+
+root@NTTD-CQM3QN3:/ros_ws# source /ros_ws/install/setup.bash &&
+ ros2 launch hand_tracking_ros htr_realsense_launch.py
+CHAT PER DOPPIO NODO 
+https://www.google.com/search?q=hand+landmark+mediapipe+for+ros&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQIRigATIHCAIQIRigATIHCAMQIRigAdIBCTYyNzBqMGoxNagCCLACAfEFEBW3GVHYJOA&sourceid=chrome&ie=UTF-8&udm=50&fbs=ABfTbFWgwlc2MNw7uknLQP9cFo05YtUSpNgn2klEDQSYENClc9rC8PvVvFW40kjRYlUQHR0wGkZDrJfbdRgz3gXC-gIjRiMrwwBhwp-uJ1C_dw-rIvMbCYqK5NY1gwoX5eStjx6RaFp_ftus4YHKrQm2_xwF3eOH1xsJasfDe-WDWWtcodtrUN81U8RZx6syZiyerJMOyrrj&aep=10&ntc=1&sxsrf=APpeQnt9rPKLyJgxlpYVeGAZEgqwSNm05w%3A1789468250758&mstk=AUtExfCb_9FNKspawHnFvKDTpmOtsyMCQsqEXGQNK2lGKLH7yE0_RtDdoTaeVS1Cz5e__MaU4gCvH6enJqYID52Rx9Fz23B3FX-_srkBK3T6Yb1NkZI3yJ0MOrMGoZKoOq-BVE8Yh4X_iL9EXg5_esxpk5Vdn44NcFOvnZY&aioh=3&csuir=1&cs=1&atvm=2&mtid=nh6pao7jHbeB9u8Pr7ThgAM
+
+ros2 run rqt_image_view rqt_image_view
+ros2 bag record -o bag_01_hand_open_close /camera/camera/color/image_raw /camera/camera/depth/image_rect_raw /camera/camera/color/camera_info /camera/camera/depth/camera_info /tf /hand_tracking/image_annotated
+ros2 bag record /camera/camera/color/image_raw /camera/camera/depth/image_rect_raw /camera/camera/color/camera_info /camera/camera/depth/camera_info /tf /hand_tracking/image_annotated
