@@ -38,9 +38,17 @@ def generate_launch_description():
 
     hand_landmark_3d_node = Node(
         package='hand_tracking_ros',
-        executable='hand_landmark_3d',
-        name='hand_landmark_3d',
+        executable='hand_landmark_3d_tasks',
+        name='hand_landmark_3d_tasks',
         output='screen',
+        parameters=[
+            {'color_topic': '/camera/camera/color/image_raw'},
+            {'depth_topic': '/camera/camera/aligned_depth_to_color/image_raw'},
+            {'camera_info_topic': '/camera/camera/color/camera_info'},
+            {'landmarks3d_topic': '/hand_landmarks_3d'},
+            {'annotated_topic': '/hand_tracking/image_annotated'},
+            {'depth_scale': 0.001},
+        ],
     )
 
     return LaunchDescription([

@@ -139,3 +139,5 @@ https://www.google.com/search?q=hand+landmark+mediapipe+for+ros&gs_lcrp=EgZjaHJv
 ros2 run rqt_image_view rqt_image_view
 ros2 bag record -o bag_01_hand_open_close /camera/camera/color/image_raw /camera/camera/depth/image_rect_raw /camera/camera/color/camera_info /camera/camera/depth/camera_info /tf /hand_tracking/image_annotated
 ros2 bag record /camera/camera/color/image_raw /camera/camera/depth/image_rect_raw /camera/camera/color/camera_info /camera/camera/depth/camera_info /tf /hand_tracking/image_annotated
+
+source /opt/ros/jazzy/setup.bash; ros2 bag play /ros_ws/Registrazioni/Oggetti/rosbag2_2026_09_16-15_03_46_0.mcap --loop

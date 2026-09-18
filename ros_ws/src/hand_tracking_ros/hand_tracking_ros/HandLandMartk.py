@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+##!/usr/bin/env python3
 """
 hand_landmark_3d_node.py
 
@@ -24,6 +24,8 @@ import numpy as np
 import mediapipe as mp
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision as mp_vision
+from ament_index_python.packages import get_package_share_directory
+import os
 
 import rclpy
 from rclpy.node import Node
@@ -44,7 +46,12 @@ class HandLandmark3DNode(Node):
         self.bridge = CvBridge()
 
         # ---------------- Parametri ROS ----------------
-        self.declare_parameter("model_path", "hand_landmarker.task")
+        default_model_path = os.path.join(
+            get_package_share_directory('hand_tracking_ros'),
+            'hand_landmarker.task'
+        )
+        self.declare_parameter("model_path", default_model_path)
+
         self.declare_parameter("color_topic", "/camera/camera/color/image_raw")
         self.declare_parameter("depth_topic", "/camera/camera/aligned_depth_to_color/image_raw")
         self.declare_parameter("camera_info_topic", "/camera/camera/color/camera_info")
@@ -57,7 +64,7 @@ class HandLandmark3DNode(Node):
         self.declare_parameter("sync_slop", 0.05)
         self.declare_parameter("depth_scale", 0.001)  # mm -> m (tipico RealSense: 16UC1 in mm)
         self.declare_parameter("publish_annotated", True)
-        self.declare_parameter("use_sim_time", True)
+        #self.declare_parameter("use_sim_time", True)
 
         model_path = self.get_parameter("model_path").get_parameter_value().string_value
         color_topic = self.get_parameter("color_topic").get_parameter_value().string_value
