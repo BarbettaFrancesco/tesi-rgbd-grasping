@@ -20,6 +20,12 @@ rosbag2_*/
 *.bag
 data/
 
+# --- Registrazioni (cartella dedicata) ---
+# Non vogliamo pushare file pesanti dentro ros_ws/Registrazioni
+ros_ws/Registrazioni/**/*.mcap
+ros_ws/Registrazioni/**/*.db3
+ros_ws/Registrazioni/**/*.bag
+
 # --- Modelli ML pesanti (MediaPipe, FoundationPose, ecc.) ---
 *.task
 *.onnx
