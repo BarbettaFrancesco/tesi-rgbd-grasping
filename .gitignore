@@ -1,3 +1,44 @@
 
 # graphify-axet
 .graphify/
+# --- Build artifacts colcon/ROS2 ---
+build/
+install/
+log/
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# --- Dati pesanti / registrazioni ---
+rosbag2_*/
+*.mcap
+*.db3
+*.bag
+data/
+
+# --- Modelli ML pesanti (MediaPipe, FoundationPose, ecc.) ---
+*.task
+*.onnx
+*.pth
+*.pt
+*.ckpt
+weights/
+
+# --- Credenziali / segreti (MAI committare) ---
+*.pem
+*.key
+*.crt
+.env
+secrets/
+
+# --- IDE ---
+.vscode/
+*.code-workspace
+
+# --- OS ---
+.DS_Store
+Thumbs.db
